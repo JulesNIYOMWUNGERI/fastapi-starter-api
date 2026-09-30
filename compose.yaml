@@ -1,0 +1,27 @@
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:80"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5433/postgres
+    depends_on:
+      - db
+    volumes:
+      - .:/backend
+      - /backend/venv # Exclude the virtual environment from volume mounting to avoid conflicts with the container's virtual environment.
+    command: ["uv", "run", "fastapi", "run", "main.py", "--port", "80", "--host", "0.0.0.0", "--reload"]
+  db: 
+    image: postgres:16
+    restart: always
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_db_fiss_data:/var/lib/postgresql/data
+volumes:
+  postgres_db_fiss_data:
